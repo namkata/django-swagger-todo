@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     # required for serving swagger ui css/js files
     # 'django.contrib.staticfiles',
+    'book',
 ]
 
 MIDDLEWARE = [

@@ -1,5 +1,4 @@
 from django.urls import path, include
-from swagger_setting.swagger_schema import SwaggerSchemaView
 # from rest_framework_swagger.views import get_swagger_view
 # from django.conf import settings
 
@@ -12,5 +11,4 @@ from swagger_setting.swagger_schema import SwaggerSchemaView
 urlpatterns = [
     # path('', schema_view),
     path('', include("book.urls")),
-    path('swagger/', SwaggerSchemaView.as_view())
 ]
