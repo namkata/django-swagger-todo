@@ -10,5 +10,6 @@ from django.urls import path, include
 
 urlpatterns = [
     # path('', schema_view),
+    path('', include("account.urls")),
     path('', include("book.urls")),
 ]
