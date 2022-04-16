@@ -1,3 +1,4 @@
+from django.http import Http404
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -64,6 +65,65 @@ class BookAPI(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class BookDetail(APIView):
+    """
+    Retrieve, update or delete a book instance.
+    """
+    serializer_class = BookSerializer
+    permission_classes = (IsAuthenticated,)
+    
+    def get_object(self, pk):
+        try:
+            return Book.objects.get(pk=pk)
+        except Book.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):
+        book = self.get_object(pk)
+        serializer = BookSerializer(book)
+        return Response(serializer.data)
+    
+    book_bodies = openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        required=['title', 'desc'],
+        properties={
+            'title': openapi.Schema(type=openapi.TYPE_STRING),
+            'desc': openapi.Schema(type=openapi.TYPE_STRING)
+        }
+    )
+    # id_param = openapi.Parameter('id',
+    #                              openapi.IN_PATH,
+    #                              description="The book id",
+    #                              type=openapi.TYPE_INTEGER)
+    update_bodies = openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        required=['title', 'desc'],
+        properties={
+            'title': openapi.Schema(type=openapi.TYPE_STRING),
+            'desc': openapi.Schema(type=openapi.TYPE_STRING)
+        }
+    )
+    @swagger_auto_schema(
+        operation_description='Update a book',
+        method='put',
+        request_body=book_bodies,
+        responses={status.HTTP_200_OK: BookSerializer()})
+    @action(methods=['PUT'], detail=False)
+    def put(self, request, pk, format=None):
+        book = self.get_object(pk)
+        serializer = BookSerializer(book, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(methods=['PUT'], detail=False)
+    def delete(self, request, pk, format=None):
+        book = self.get_object(pk)
+        book.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 """
